@@ -2,6 +2,7 @@
 library(tidyverse)
 library(lme4)
 library(scales)
+library(lmerTest)
 
 soils <- read.csv ("data/reproduction_and_biomass - endo&soil.csv")
 
@@ -110,22 +111,25 @@ points(1:14,c(coef(biomass_3)[1]+coef(biomass_3)[9],
 biomass_4 <- lmer(abg_mass_tot~Endo*Site*Species+(1|Pop), data=soils)
 summary(biomass_4)
 anova(biomass_4)
-boxplot(abg_mass_tot~Endo*Site, data=soils, subset = Species =="AGHY", main="AGHY", col=endo_col)
+
 coef(biomass_4)
-points(1:14,c(coef(biomass_4)[1],
-              coef(biomass_4)[1]+coef(biomass_4)[2],
-              coef(biomass_4)[1]+coef(biomass_4)[3],
-              coef(biomass_4)[1]+coef(biomass_4)[3]+coef(biomass_4)[2]+coef(biomass_4)[10],
-              coef(biomass_4)[1]+coef(biomass_4)[4],
-              coef(biomass_4)[1]+coef(biomass_4)[4]+coef(biomass_4)[2]+coef(biomass_4)[11],
-              coef(biomass_4)[1]+coef(biomass_4)[5],
-              coef(biomass_4)[1]+coef(biomass_4)[5]+coef(biomass_4)[2]+coef(biomass_4)[12],
-              coef(biomass_4)[1]+coef(biomass_4)[6],
-              coef(biomass_4)[1]+coef(biomass_4)[6]+coef(biomass_4)[2]+coef(biomass_4)[13],
-              coef(biomass_4)[1]+coef(biomass_4)[7],
-              coef(biomass_4)[1]+coef(biomass_4)[7]+coef(biomass_4)[2]+coef(biomass_4)[14],
-              coef(biomass_4)[1]+coef(biomass_4)[8],
-              coef(biomass_4)[1]+coef(biomass_4)[8]+coef(biomass_4)[2]+coef(biomass_4)[15]
+
+boxplot(abg_mass_tot~Endo*Site, data=soils, subset = Species =="AGHY", main="AGHY", col=endo_col)
+fixef(biomass_4)
+points(1:14,c(fixef(biomass_4)[1],
+              fixef(biomass_4)[1]+fixef(biomass_4)[2],
+              fixef(biomass_4)[1]+fixef(biomass_4)[3],
+              fixef(biomass_4)[1]+fixef(biomass_4)[3]+fixef(biomass_4)[2]+fixef(biomass_4)[10],
+              fixef(biomass_4)[1]+fixef(biomass_4)[4],
+              fixef(biomass_4)[1]+fixef(biomass_4)[4]+fixef(biomass_4)[2]+fixef(biomass_4)[11],
+              fixef(biomass_4)[1]+fixef(biomass_4)[5],
+              fixef(biomass_4)[1]+fixef(biomass_4)[5]+fixef(biomass_4)[2]+fixef(biomass_4)[12],
+              fixef(biomass_4)[1]+fixef(biomass_4)[6],
+              fixef(biomass_4)[1]+fixef(biomass_4)[6]+fixef(biomass_4)[2]+fixef(biomass_4)[13],
+              fixef(biomass_4)[1]+fixef(biomass_4)[7],
+              fixef(biomass_4)[1]+fixef(biomass_4)[7]+fixef(biomass_4)[2]+fixef(biomass_4)[14],
+              fixef(biomass_4)[1]+fixef(biomass_4)[8],
+              fixef(biomass_4)[1]+fixef(biomass_4)[8]+fixef(biomass_4)[2]+fixef(biomass_4)[15]
 ),col="midnightblue",bg=endo_est_col,pch=21,cex=2)
 
 
@@ -138,8 +142,7 @@ summary(inflocount)
 anova(inflocount)
 
 
-
-
+#spikelet
 
 spikelets <- glmer(avg_spikelet~Endo*Species*Pop*Site*,family="poisson", data=soils)
 
