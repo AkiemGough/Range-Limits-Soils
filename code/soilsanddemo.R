@@ -159,7 +159,7 @@ spikelets <- glmer(avg_spikelet~Endo*Species*Pop*Site*,family="poisson", data=so
 
 table(soils$Species)
 
-boxplot(data=soils, abg_mass_sans_inflo ~ Endo*Site, col= c("purple","aquamarine"))
+boxplot(data=soils, abg_mass_sans_inflo ~ Endo*Site, col= c("magenta","aquamarine"))
 
 ?boxplot
 
