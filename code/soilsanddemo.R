@@ -3,6 +3,7 @@ library(tidyverse)
 library(lme4)
 library(scales)
 library(lmerTest)
+library(DHARMa)
 
 #SETUP#_________________________________
 #reading in soil data
@@ -162,14 +163,34 @@ points(1:14,c(fixef(biomass_4)[1]+fixef(biomass_4)[9],
 
 #MODEL FOR INFLO COUNT#_________________________________
 #inflorescence count
-inflocount <- glmer(n_Inflo~Endo*Site*Species+(1|Pop),family="poisson", data=soils)
+aghysoils<-soils %>% filter(Species=="AGHY")
+inflocount <- glm(n_Inflo~Endo*Site,family="poisson", data=aghysoils)
+siminflo<-simulateResiduals(inflocount)
+plot(siminflo)
 summary(inflocount)
 anova(inflocount)
+coef(inflocount)
+boxplot(n_Inflo~Endo*Site, data=soils, main="AGHY Inflo Counts", col=endo_col)
+points(1:14, c(exp(coef(inflocount)[1]),
+               exp(coef(inflocount)[1]+coef(inflocount)[2]),
+               exp(coef(inflocount)[1]+coef(inflocount)[3]),
+               exp(coef(inflocount)[1]+coef(inflocount)[3]+coef(inflocount)[2]+coef(inflocount)[9]),
+               exp(coef(inflocount)[1]+coef(inflocount)[4]),
+               exp(coef(inflocount)[1]+coef(inflocount)[4]+coef(inflocount)[2]+coef(inflocount)[10]),
+               exp(coef(inflocount)[1]+coef(inflocount)[5]),
+               exp(coef(inflocount)[1]+coef(inflocount)[5]+coef(inflocount)[2]+coef(inflocount)[11]),
+               exp(coef(inflocount)[1]+coef(inflocount)[6]),
+               exp(coef(inflocount)[1]+coef(inflocount)[6]+coef(inflocount)[2]+coef(inflocount)[12]),
+               exp(coef(inflocount)[1]+coef(inflocount)[7]),
+               exp(coef(inflocount)[1]+coef(inflocount)[7]+coef(inflocount)[2]+coef(inflocount)[13]),
+               exp(coef(inflocount)[1]+coef(inflocount)[8]),
+               exp(coef(inflocount)[1]+coef(inflocount)[8]+coef(inflocount)[2]+coef(inflocount)[14])),
+       col="midnightblue",bg=endo_est_col,pch=21,cex=2)
 
 
 #MODEL FOR INFLO COUNT#_________________________________
 #spikelet
-spikelets <- glmer(avg_spikelet~Endo*Species*Pop*Site*,family="poisson", data=soils)
+spikelets <- glmer(total_spike~Endo*Species*Pop*Site*,family="poisson", data=soils)
 
 ##QUESTIONS
 
@@ -183,3 +204,4 @@ spikelets <- glmer(avg_spikelet~Endo*Species*Pop*Site*,family="poisson", data=so
 #Make a variable for age and then what? Center age??
 
 #Could put in same model or two models for different species
+
