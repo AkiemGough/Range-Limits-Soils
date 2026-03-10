@@ -25,11 +25,10 @@ soils$Site <- factor(soils$Site, c("SON","KER","BFL","BAS","COL","HUN","LAF"))
 endo_col <- c("tomato","cornflowerblue")
 endo_est_col <- c("firebrick4","royalblue4")
 
-
 #PRELIMINARY MODELS FOR BIOMASS#_________________________________
 #biomass m1
 biomass <- lm(abg_mass_tot~Site, data=soils)
-summary(abg_mass_tot)
+summary(biomass)
 anova(biomass)
 plot(biomass)
 boxplot(abg_mass_tot~Site, data=soils)
@@ -64,14 +63,11 @@ points(1:14,c(coef(biomass_2)[1],
              coef(biomass_2)[1]+coef(biomass_2)[8],
              coef(biomass_2)[1]+coef(biomass_2)[8]+coef(biomass_2)[2]+coef(biomass_2)[14]),col="deeppink4",pch=16,cex=2)
 
-?boxplot
 
-soils %>% group_by(Species) %>% filter(Endo="E-")
 
 soils %>% filter(Species=="ELVI") %>% count(Endo == "E-")
 soils %>% filter(Endo=="E-") %>% group_by(Species) %>% summarise(count_E_minus=n())
 
-soils %>% filter(Species=="ELVI" & Endo=="E-" & abg_mass_tot > 0)
 
 #biomass_3
 biomass_3 <- lm(abg_mass_tot~Endo*Site*Species, data=soils)
@@ -115,7 +111,6 @@ points(1:14,c(coef(biomass_3)[1]+coef(biomass_3)[9],
               ),col="midnightblue",bg=endo_est_col,pch=21,cex=2)
 
 
-#FINAL MODEL FOR BIOMASS#_________________________________
 #biomass_4
 biomass_4 <- lmer(abg_mass_tot~Endo*Site*Species+(1|Pop), data=soils)
 summary(biomass_4)
@@ -161,6 +156,38 @@ points(1:14,c(fixef(biomass_4)[1]+fixef(biomass_4)[9],
 ),col="midnightblue",bg=endo_est_col,pch=21,cex=2)
 
 
+#FINAL MODEL FOR BIOMASS#_________________________________
+#biomass m2
+#filtering for aghy
+aghysoils<-soils %>% filter(Species=="AGHY")
+
+biomass_2 <- lm(abg_mass_tot~Endo*Site, data=aghysoils)
+summary(biomass_2)
+anova(biomass_2)
+#plot(biomass_2)
+boxplot(abg_mass_tot~Endo*Site, data=aghysoils,
+        main="Effects of Endophyte Status and Soil on AGHY Biomass", 
+        cex.main=1.05, col=endo_col)
+coef(biomass_2)
+points(1:14,c(coef(biomass_2)[1],
+              coef(biomass_2)[1]+coef(biomass_2)[2],
+              coef(biomass_2)[1]+coef(biomass_2)[3],
+              coef(biomass_2)[1]+coef(biomass_2)[3]+coef(biomass_2)[2]+coef(biomass_2)[9],
+              coef(biomass_2)[1]+coef(biomass_2)[4],
+              coef(biomass_2)[1]+coef(biomass_2)[4]+coef(biomass_2)[2]+coef(biomass_2)[10],
+              coef(biomass_2)[1]+coef(biomass_2)[5],
+              coef(biomass_2)[1]+coef(biomass_2)[5]+coef(biomass_2)[2]+coef(biomass_2)[11],
+              coef(biomass_2)[1]+coef(biomass_2)[6],
+              coef(biomass_2)[1]+coef(biomass_2)[6]+coef(biomass_2)[2]+coef(biomass_2)[12],
+              coef(biomass_2)[1]+coef(biomass_2)[7],
+              coef(biomass_2)[1]+coef(biomass_2)[7]+coef(biomass_2)[2]+coef(biomass_2)[13],
+              coef(biomass_2)[1]+coef(biomass_2)[8],
+              coef(biomass_2)[1]+coef(biomass_2)[8]+coef(biomass_2)[2]+coef(biomass_2)[14]
+              ),col="midnightblue",bg=endo_est_col,pch=21,cex=2)
+
+
+
+
 #MODEL FOR INFLO COUNT#_________________________________
 #inflorescence count
 aghysoils<-soils %>% filter(Species=="AGHY")
@@ -170,7 +197,10 @@ plot(siminflo)
 summary(inflocount)
 anova(inflocount)
 coef(inflocount)
-boxplot(n_Inflo~Endo*Site, data=soils, main="AGHY Inflo Counts", col=endo_col)
+
+boxplot(n_Inflo~Endo*Site, data=aghysoils,
+        main="Effects of Endophyte Status and Soil on AGHY Inflo Count", 
+        cex.main=1.05, col=endo_col)
 points(1:14, c(exp(coef(inflocount)[1]),
                exp(coef(inflocount)[1]+coef(inflocount)[2]),
                exp(coef(inflocount)[1]+coef(inflocount)[3]),
