@@ -4,6 +4,7 @@ library(lme4)
 library(scales)
 library(lmerTest)
 library(DHARMa)
+library(emmeans)
 
 #SETUP#_________________________________
 #reading in soil data
@@ -164,6 +165,13 @@ aghysoils<-soils %>% filter(Species=="AGHY")
 biomass_2 <- lm(abg_mass_tot~Endo*Site, data=aghysoils)
 summary(biomass_2)
 anova(biomass_2)
+# Post Hoc Comparisons (From Gemini) 
+# Calculate the means
+em_interaction <- emmeans(biomass_2, ~ Endo | Site)
+# Run pairwise comparisons
+pairs(em_interaction, adjust = "tukey")
+# (End Gemini) 
+
 #plot(biomass_2)
 boxplot(abg_mass_tot~Endo*Site, data=aghysoils,
         main="Effects of Endophyte Status and Soil on AGHY Biomass", 
@@ -193,9 +201,17 @@ points(1:14,c(coef(biomass_2)[1],
 aghysoils<-soils %>% filter(Species=="AGHY")
 inflocount <- glm(n_Inflo~Endo*Site,family="poisson", data=aghysoils)
 siminflo<-simulateResiduals(inflocount)
-plot(siminflo)
+#plot(siminflo)
 summary(inflocount)
 anova(inflocount)
+
+# Post Hoc Comparisons (From Gemini) 
+# Calculate the means
+em_interaction <- emmeans(inflocount, ~ Endo | Site)
+# Run pairwise comparisons
+pairs(em_interaction, adjust = "tukey")
+#(End Gemini) 
+
 coef(inflocount)
 
 boxplot(n_Inflo~Endo*Site, data=aghysoils,
@@ -220,7 +236,7 @@ points(1:14, c(exp(coef(inflocount)[1]),
 
 #MODEL FOR INFLO COUNT#_________________________________
 #spikelet
-spikelets <- glmer(total_spike~Endo*Species*Pop*Site*,family="poisson", data=soils)
+spikelets <- glm(total_spike~Endo*Site,family="poisson", data=aghysoils)
 
 ##QUESTIONS
 
