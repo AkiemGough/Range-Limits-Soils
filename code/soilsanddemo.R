@@ -10,13 +10,8 @@ library(emmeans)
 #reading in soil data
 soils <- read.csv ("data/reproduction_and_biomass - endo&soil.csv")
 
-str(soils)
-
 #coericing response variables into numeric form
 soils$abg_mass_tot <- as.numeric(soils$abg_mass_tot, na.rm=T)
-
-#checking the residuals and distribution
-hist(resid(soils))
 
 #coericing explanatory variables into factors
 soils$Site <- as.factor(soils$Site)
@@ -68,7 +63,7 @@ points(1:14,c(coef(biomass_2)[1],
 
 soils %>% filter(Species=="ELVI") %>% count(Endo == "E-")
 soils %>% filter(Endo=="E-") %>% group_by(Species) %>% summarise(count_E_minus=n())
-
+soils %>% filter(Endo=="E+") %>% group_by(Site) %>% summarise(count_E_plus=n())
 
 #biomass_3
 biomass_3 <- lm(abg_mass_tot~Endo*Site*Species, data=soils)
@@ -165,12 +160,9 @@ aghysoils<-soils %>% filter(Species=="AGHY")
 biomass_2 <- lm(abg_mass_tot~Endo*Site, data=aghysoils)
 summary(biomass_2)
 anova(biomass_2)
-# Post Hoc Comparisons (From Gemini) 
-# Calculate the means
-em_interaction <- emmeans(biomass_2, ~ Endo | Site)
-# Run pairwise comparisons
-pairs(em_interaction, adjust = "tukey")
-# (End Gemini) 
+# Post Hoc Comparisons
+(hoc_site_mass <- emmeans(biomass_2, pairwise~Site))
+(hoc_ensi_mass <- emmeans(biomass_2, pairwise~Endo | Site))
 
 #plot(biomass_2)
 boxplot(abg_mass_tot~Endo*Site, data=aghysoils,
@@ -192,9 +184,15 @@ points(1:14,c(coef(biomass_2)[1],
               coef(biomass_2)[1]+coef(biomass_2)[8],
               coef(biomass_2)[1]+coef(biomass_2)[8]+coef(biomass_2)[2]+coef(biomass_2)[14]
               ),col="midnightblue",bg=endo_est_col,pch=21,cex=2)
+legend("topleft",
+       legend=c("E-","E+"),
+       pch=15,
+       pt.cex=2,
+       col=c("tomato", "cornflowerblue"),
+       bty="n")
 
 
-
+?legend
 
 #MODEL FOR INFLO COUNT#_________________________________
 #inflorescence count
@@ -205,12 +203,9 @@ siminflo<-simulateResiduals(inflocount)
 summary(inflocount)
 anova(inflocount)
 
-# Post Hoc Comparisons (From Gemini) 
-# Calculate the means
-em_interaction <- emmeans(inflocount, ~ Endo | Site)
-# Run pairwise comparisons
-pairs(em_interaction, adjust = "tukey")
-#(End Gemini) 
+# Post Hoc Comparisons
+(hoc_site_inflo <- emmeans(inflocount, pairwise~Site))
+(hoc_ensi_inflo <- emmeans(inflocount, pairwise~Endo | Site))
 
 coef(inflocount)
 
@@ -232,22 +227,98 @@ points(1:14, c(exp(coef(inflocount)[1]),
                exp(coef(inflocount)[1]+coef(inflocount)[8]),
                exp(coef(inflocount)[1]+coef(inflocount)[8]+coef(inflocount)[2]+coef(inflocount)[14])),
        col="midnightblue",bg=endo_est_col,pch=21,cex=2)
+legend("topleft",
+       legend=c("E-","E+"),
+       pch=15,
+       pt.cex=2,
+       col=c("tomato", "cornflowerblue"),
+       bty="n")
 
-
-#MODEL FOR INFLO COUNT#_________________________________
+#MODEL FOR TOTAL SPIKELET COUNT#_________________________________
 #spikelet
-spikelets <- glm(total_spike~Endo*Site,family="poisson", data=aghysoils)
+tot_spikelets <- glm(tot_spikelet~Endo*Site,family="poisson", data=aghysoils)
+simtot<-simulateResiduals(tot_spikelets)
+#plot(siminflo)
+summary(tot_spikelets)
+anova(tot_spikelets)
+
+# Post Hoc Comparisons
+(hoc_site_spik <- emmeans(tot_spikelets, pairwise~Site))
+(hoc_ensi_spik <- emmeans(tot_spikelets, pairwise~Endo | Site))
+
+coef(tot_spikelets)
+
+boxplot(tot_spikelet~Endo*Site, data=aghysoils,
+        main="Effects of Endophyte Status and Soil on AGHY Total Spikelet Count", 
+        cex.main=1.05, col=endo_col)
+points(1:14, c(exp(coef(tot_spikelets)[1]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[2]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[3]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[3]+coef(tot_spikelets)[2]+coef(tot_spikelets)[9]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[4]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[4]+coef(tot_spikelets)[2]+coef(tot_spikelets)[10]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[5]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[5]+coef(tot_spikelets)[2]+coef(tot_spikelets)[11]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[6]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[6]+coef(tot_spikelets)[2]+coef(tot_spikelets)[12]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[7]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[7]+coef(tot_spikelets)[2]+coef(tot_spikelets)[13]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[8]),
+               exp(coef(tot_spikelets)[1]+coef(tot_spikelets)[8]+coef(tot_spikelets)[2]+coef(tot_spikelets)[14])),
+       col="midnightblue",bg=endo_est_col,pch=21,cex=2)
+legend("topleft",
+       legend=c("E-","E+"),
+       pch=15,
+       pt.cex=2,
+       col=c("tomato", "cornflowerblue"),
+       bty="n")
+
+#MODEL FOR AVERAGE SPIKELET COUNT#_________________________________
+#spikelet
+avg_spikelets <- glm(avg_spikelet~Endo*Site,family="poisson", data=aghysoils)
+simavg<-simulateResiduals(avg_spikelets)
+#plot(siminflo)
+summary(avg_spikelets)
+anova(avg_spikelets)
+
+# Post Hoc Comparisons
+(hoc_site_spik <- emmeans(avg_spikelets, pairwise~Site))
+(hoc_ensi_spik <- emmeans(avg_spikelets, pairwise~Endo | Site))
+
+coef(avg_spikelets)
+
+boxplot(avg_spikelet~Endo*Site, data=aghysoils,
+        main="Effects of Endophyte Status and Soil on AGHY Average Spikelet Count", 
+        cex.main=1.05, col=endo_col)
+points(1:14, c(exp(coef(avg_spikelets)[1]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[2]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[3]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[3]+coef(avg_spikelets)[2]+coef(avg_spikelets)[9]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[4]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[4]+coef(avg_spikelets)[2]+coef(avg_spikelets)[10]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[5]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[5]+coef(avg_spikelets)[2]+coef(avg_spikelets)[11]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[6]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[6]+coef(avg_spikelets)[2]+coef(avg_spikelets)[12]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[7]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[7]+coef(avg_spikelets)[2]+coef(avg_spikelets)[13]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[8]),
+               exp(coef(avg_spikelets)[1]+coef(avg_spikelets)[8]+coef(avg_spikelets)[2]+coef(avg_spikelets)[14])),
+       col="midnightblue",bg=endo_est_col,pch=21,cex=2)
+legend("topleft",
+       legend=c("E-","E+"),
+       pch=15,
+       pt.cex=2,
+       col=c("tomato", "cornflowerblue"),
+       bty="n")
+
+
 
 ##QUESTIONS
 
 #Would an AIC be appropriate?
 
-#Keep it simple
-#maybe a log transformation is necessary but we could use a linear model, look at residuals see if reasonable
-
-
 #How do we account for the different birth dates? 
 #Make a variable for age and then what? Center age??
 
-#Could put in same model or two models for different species
 
