@@ -27,7 +27,6 @@ aghysoils<-soils %>% filter(Species=="AGHY")
 
 
 #MODEL FOR ABOVEGROUND BIOMASS#_________________________________
-
 #writing the model
 biomass_2 <- lm(abg_mass_tot~Endo*Site, data=aghysoils)
 
@@ -76,7 +75,7 @@ legend("topleft",
 
 #MODEL FOR INFLO COUNT#_________________________________
 #writing model
-inflocount <- glm(n_Inflo~Endo*Site,family="poisson", data=aghysoils)
+inflocount <- glm(total_inflo~Endo*Site,family="poisson", data=aghysoils)
 
 #checking residuals
 siminflo<-simulateResiduals(inflocount)
@@ -96,7 +95,7 @@ anova(inflocount)
 
 
 #generating figure
-boxplot(n_Inflo~Endo*Site, data=aghysoils,
+boxplot(total_inflo~Endo*Site, data=aghysoils,
         main="Effects of Endophyte Status and Soil on AGHY Inflo Count", 
         cex.main=1.05, col=endo_col)
 coef(inflocount)
